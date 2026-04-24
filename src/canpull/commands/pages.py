@@ -182,11 +182,14 @@ def _process_page_html(
     client: CanvasClient,
     files_dir: Path,
     file_id_to_name: dict[int, str],
+    link_prefix: str = "",
 ) -> tuple[str, list[tuple[int, str]]]:
     """Download file attachments and rewrite URLs for multi-page downloads.
 
-    Files are saved to files_dir and rewritten to 'files/<filename>'.
-    Canvas page links are rewritten to '<slug>.md'.
+    Files are saved to files_dir and rewritten to '<link_prefix>files/<filename>'.
+    Canvas page links are rewritten to '<link_prefix><slug>.md'.
+    link_prefix should be a relative path (e.g. '../') when the output file lives
+    in a subdirectory of the course root.
     file_id_to_name is mutated in-place and shared across all pages to deduplicate.
 
     Returns:
@@ -212,7 +215,7 @@ def _process_page_html(
                 console.print(f"[yellow]Skipping file {file_id}: {e}[/yellow]")
                 continue
 
-        url_to_name[original_url] = f"files/{quote(file_id_to_name[file_id])}"
+        url_to_name[original_url] = f"{link_prefix}files/{quote(file_id_to_name[file_id])}"
 
     for original_url in sorted(url_to_name, key=len, reverse=True):
         html_body = html_body.replace(original_url, url_to_name[original_url])
@@ -226,7 +229,7 @@ def _process_page_html(
         slug = match.group(3)
 
         if original_url not in page_url_to_local:
-            page_url_to_local[original_url] = f"{slug}.md"
+            page_url_to_local[original_url] = f"{link_prefix}{slug}.md"
             discovered_pages.append((course_id, slug))
 
     for original_url in sorted(page_url_to_local, key=len, reverse=True):
