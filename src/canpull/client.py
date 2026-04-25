@@ -14,8 +14,11 @@ from rich.progress import (
     TextColumn,
     TransferSpeedColumn,
 )
+from rich.console import Console
 
 from canpull.config import get_base_url, get_token
+
+console = Console()
 
 
 class CanvasError(Exception):
@@ -58,7 +61,10 @@ class CanvasClient:
             self._raise_for_status(e)
         return json.loads(response.read().decode())
 
-    def download_file(self, url: str, dest_path: Path) -> None:
+    def download_file(self, url: str, dest_path: Path, skip_existing: bool = False) -> None:
+        if skip_existing and dest_path.exists():
+            console.print(f"[dim]Skipping {dest_path.name} (already exists)[/dim]")
+            return
         dest_path.parent.mkdir(parents=True, exist_ok=True)
         response = self._open(url)
         total = int(response.headers.get("Content-Length") or 0)

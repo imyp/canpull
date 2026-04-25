@@ -183,6 +183,7 @@ def _process_page_html(
     files_dir: Path,
     file_id_to_name: dict[int, str],
     link_prefix: str = "",
+    skip_existing: bool = False,
 ) -> tuple[str, list[tuple[int, str]]]:
     """Download file attachments and rewrite URLs for multi-page downloads.
 
@@ -212,7 +213,7 @@ def _process_page_html(
                     console.print(f"[yellow]Skipping file {file_id}: no download URL available[/yellow]")
                     continue
                 console.print(f"Downloading [cyan]{file.display_name}[/cyan]")
-                client.download_file(file.url, files_dir / file.filename)
+                client.download_file(file.url, files_dir / file.filename, skip_existing=skip_existing)
                 file_id_to_name[file_id] = file.filename
             except CanvasError as e:
                 console.print(f"[yellow]Skipping file {file_id}: {e}[/yellow]")
@@ -241,7 +242,7 @@ def _process_page_html(
     return html_body, discovered_pages
 
 
-def page_save_all_cmd(course: str):
+def page_save_all_cmd(course: str, skip_existing: bool = False):
     """Download all pages in a course as Markdown files.
 
     Each page is saved as <slug>.md in the course directory. File attachments
@@ -276,7 +277,7 @@ def page_save_all_cmd(course: str):
         page_data = client.get_one(f"/courses/{course_id}/pages/{slug}")
         page = Page.from_api(page_data)
         modified_html, _ = _process_page_html(
-            page.body, client, files_dir, file_id_to_name
+            page.body, client, files_dir, file_id_to_name, skip_existing=skip_existing
         )
         modified_html = _strip_local_query_params(modified_html)
         md_content = f"# {page.title}\n\n{markdownify(modified_html)}"
@@ -289,7 +290,7 @@ def page_save_all_cmd(course: str):
     )
 
 
-def save_homepage_cmd(course: str):
+def save_homepage_cmd(course: str, skip_existing: bool = False):
     """Download the course homepage as a Markdown file.
 
     Saved to downloads/<course_code>/<slug>.md with linked files in files/.
@@ -308,7 +309,7 @@ def save_homepage_cmd(course: str):
     files_dir.mkdir(exist_ok=True)
 
     file_id_to_name: dict[int, str] = {}
-    modified_html, _ = _process_page_html(page.body, client, files_dir, file_id_to_name)
+    modified_html, _ = _process_page_html(page.body, client, files_dir, file_id_to_name, skip_existing=skip_existing)
     modified_html = _strip_local_query_params(modified_html)
     md_content = f"# {page.title}\n\n{markdownify(modified_html)}"
 

@@ -35,7 +35,7 @@ def module_list_cmd(course: str):
     console.print(modules_tree(result, base_dir))
 
 
-def module_save_all_cmd(course: str):
+def module_save_all_cmd(course: str, skip_existing: bool = False):
     """Download all course modules as Markdown files.
 
     Creates modules.md with a section per module. File items are downloaded to
@@ -83,7 +83,7 @@ def module_save_all_cmd(course: str):
                         console.print(f"  [yellow]Skipping {file.display_name}: no download URL available[/yellow]")
                     else:
                         console.print(f"  Downloading [cyan]{file.display_name}[/cyan]")
-                        client.download_file(file.url, files_dir / file.filename)
+                        client.download_file(file.url, files_dir / file.filename, skip_existing=skip_existing)
                         file_id_to_name[item.content_id] = file.filename
                 filename = file_id_to_name[item.content_id]
                 md_lines.append(f"- [{item.title}](files/{quote(filename)})")
@@ -95,7 +95,7 @@ def module_save_all_cmd(course: str):
                     page_resp = client.get_one(f"/courses/{course_id}/pages/{slug}")
                     page = Page.from_api(page_resp)
                     modified_html, _ = _process_page_html(
-                        page.body, client, files_dir, file_id_to_name
+                        page.body, client, files_dir, file_id_to_name, skip_existing=skip_existing
                     )
                     modified_html = _strip_local_query_params(modified_html)
                     md_content = f"# {page.title}\n\n{markdownify(modified_html)}"

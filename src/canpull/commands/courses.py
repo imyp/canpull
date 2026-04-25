@@ -8,7 +8,10 @@ from canpull.utils.display import courses_table
 console = Console()
 
 
-def course_save_cmd(course: str) -> None:
+def course_save_cmd(
+    course: str,
+    skip_existing: bool = typer.Option(False, "--skip-existing", help="Skip files that already exist locally."),
+) -> None:
     """Download everything for a course: modules, pages, announcements, and files.
 
     Runs all four save-all operations in sequence:
@@ -23,16 +26,16 @@ def course_save_cmd(course: str) -> None:
     from canpull.commands.pages import page_save_all_cmd
 
     console.rule("[bold]Modules")
-    module_save_all_cmd(course)
+    module_save_all_cmd(course, skip_existing=skip_existing)
 
     console.rule("[bold]Pages")
-    page_save_all_cmd(course)
+    page_save_all_cmd(course, skip_existing=skip_existing)
 
     console.rule("[bold]Announcements")
     announcement_save_all_cmd(course)
 
     console.rule("[bold]Files")
-    file_download_all_cmd(course)
+    file_download_all_cmd(course, skip_existing=skip_existing)
 
     console.rule()
     console.print(f"[green bold]Done.[/green bold] All content saved for [bold]{course}[/bold].")

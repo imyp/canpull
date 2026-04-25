@@ -9,22 +9,22 @@ from canpull.models import File, Folder
 console = Console()
 
 
-def file_download_cmd(course: str, file_id: int):
+def file_download_cmd(course: str, file_id: int, skip_existing: bool = False):
     """Download a single file by its Canvas file ID."""
     client = CanvasClient()
     course_id = client.resolve_course_id(course)
     course_data = client.get_one(f"/courses/{course_id}")
-    _download_single(client, file_id, str(get_course_dir(course_data)))
+    _download_single(client, file_id, str(get_course_dir(course_data)), skip_existing=skip_existing)
 
 
-def file_download_all_cmd(course: str):
+def file_download_all_cmd(course: str, skip_existing: bool = False):
     """Download all files in a course, preserving folder structure."""
     client = CanvasClient()
     course_id = client.resolve_course_id(course)
-    _download_all(client, course_id)
+    _download_all(client, course_id, skip_existing=skip_existing)
 
 
-def _download_single(client: CanvasClient, file_id: int, dest_dir: str) -> None:
+def _download_single(client: CanvasClient, file_id: int, dest_dir: str, skip_existing: bool = False) -> None:
     file_data = client.get_one(f"/files/{file_id}")
     file = File.from_api(file_data)
     if not file.url:
@@ -32,10 +32,10 @@ def _download_single(client: CanvasClient, file_id: int, dest_dir: str) -> None:
         return
     dest_path = Path(dest_dir) / file.filename
     console.print(f"Downloading [cyan]{file.display_name}[/cyan] → {dest_path}")
-    client.download_file(file.url, dest_path)
+    client.download_file(file.url, dest_path, skip_existing=skip_existing)
 
 
-def _download_all(client: CanvasClient, course_id: int) -> None:
+def _download_all(client: CanvasClient, course_id: int, skip_existing: bool = False) -> None:
     course_data = client.get_one(f"/courses/{course_id}")
     base_dir = get_course_dir(course_data)
 
@@ -54,7 +54,7 @@ def _download_all(client: CanvasClient, course_id: int) -> None:
             console.print(f"[yellow]Skipping {file.display_name}: no download URL available[/yellow]")
             continue
         try:
-            client.download_file(file.url, dest_path)
+            client.download_file(file.url, dest_path, skip_existing=skip_existing)
         except CanvasError as e:
             console.print(f"[yellow]Skipping {file.display_name}: {e}[/yellow]")
 
