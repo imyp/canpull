@@ -208,6 +208,9 @@ def _process_page_html(
             try:
                 file_data = client.get_one(f"/files/{file_id}")
                 file = File.from_api(file_data)
+                if not file.url:
+                    console.print(f"[yellow]Skipping file {file_id}: no download URL available[/yellow]")
+                    continue
                 console.print(f"Downloading [cyan]{file.display_name}[/cyan]")
                 client.download_file(file.url, files_dir / file.filename)
                 file_id_to_name[file_id] = file.filename

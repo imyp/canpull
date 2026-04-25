@@ -79,9 +79,12 @@ def module_save_all_cmd(course: str):
                 if item.content_id not in file_id_to_name:
                     file_resp = client.get_one(f"/files/{item.content_id}")
                     file = File.from_api(file_resp)
-                    console.print(f"  Downloading [cyan]{file.display_name}[/cyan]")
-                    client.download_file(file.url, files_dir / file.filename)
-                    file_id_to_name[item.content_id] = file.filename
+                    if not file.url:
+                        console.print(f"  [yellow]Skipping {file.display_name}: no download URL available[/yellow]")
+                    else:
+                        console.print(f"  Downloading [cyan]{file.display_name}[/cyan]")
+                        client.download_file(file.url, files_dir / file.filename)
+                        file_id_to_name[item.content_id] = file.filename
                 filename = file_id_to_name[item.content_id]
                 md_lines.append(f"- [{item.title}](files/{quote(filename)})")
 

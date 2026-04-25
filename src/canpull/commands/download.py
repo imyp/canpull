@@ -27,6 +27,9 @@ def file_download_all_cmd(course: str):
 def _download_single(client: CanvasClient, file_id: int, dest_dir: str) -> None:
     file_data = client.get_one(f"/files/{file_id}")
     file = File.from_api(file_data)
+    if not file.url:
+        console.print(f"[yellow]Skipping {file.display_name}: no download URL available[/yellow]")
+        return
     dest_path = Path(dest_dir) / file.filename
     console.print(f"Downloading [cyan]{file.display_name}[/cyan] → {dest_path}")
     client.download_file(file.url, dest_path)
@@ -47,6 +50,9 @@ def _download_all(client: CanvasClient, course_id: int) -> None:
         rel_path = _folder_relative_path(folder, folders) if folder else Path()
         dest_path = base_dir / "files" / rel_path / file.filename
         console.print(f"[dim]files/{rel_path}/[/dim]{file.display_name}")
+        if not file.url:
+            console.print(f"[yellow]Skipping {file.display_name}: no download URL available[/yellow]")
+            continue
         try:
             client.download_file(file.url, dest_path)
         except CanvasError as e:
