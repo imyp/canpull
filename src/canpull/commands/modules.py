@@ -81,6 +81,8 @@ def module_save_all_cmd(course: str, skip_existing: bool = False):
                     file = File.from_api(file_resp)
                     if not file.url:
                         console.print(f"  [yellow]Skipping {file.display_name}: no download URL available[/yellow]")
+                        md_lines.append(f"- {item.title} *(unavailable)*")
+                        continue
                     else:
                         console.print(f"  Downloading [cyan]{file.display_name}[/cyan]")
                         client.download_file(file.url, files_dir / file.filename, skip_existing=skip_existing)
