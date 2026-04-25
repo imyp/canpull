@@ -4,7 +4,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.tree import Tree
 
-from canpull.models import Announcement, Course, File, Module, ModuleItem, Page
+from canpull.models import Announcement, Assignment, Course, File, Module, ModuleItem, Page
 
 console = Console()
 
@@ -73,6 +73,21 @@ def announcements_table(announcements: list[Announcement]) -> Table:
     for a in announcements:
         posted = a.posted_at[:10] if a.posted_at else ""
         table.add_row(str(a.id), a.title, a.author, posted)
+    return table
+
+
+def assignments_table(assignments: list[Assignment]) -> Table:
+    table = Table(show_lines=False, show_header=True)
+    table.add_column("ID", style="dim", no_wrap=True)
+    table.add_column("Name")
+    table.add_column("Due", style="cyan", no_wrap=True)
+    table.add_column("Points", justify="right", style="dim", no_wrap=True)
+    table.add_column("Type", style="dim", no_wrap=True)
+    for a in assignments:
+        due = a.due_at[:10] if a.due_at else "—"
+        points = str(int(a.points_possible)) if a.points_possible is not None else "—"
+        sub_types = ", ".join(a.submission_types) if a.submission_types else "—"
+        table.add_row(str(a.id), a.name, due, points, sub_types)
     return table
 
 

@@ -133,3 +133,24 @@ class ModuleItem:
             html_url=data.get("html_url"),
             page_url=data.get("page_url"),
         )
+
+
+@dataclass
+class Assignment:
+    id: int
+    name: str
+    due_at: str
+    points_possible: float | None
+    submission_types: list[str]
+    html_url: str
+
+    @classmethod
+    def from_api(cls, data: dict) -> "Assignment":
+        return cls(
+            id=data["id"],
+            name=data.get("name", ""),
+            due_at=data.get("due_at") or "",
+            points_possible=data.get("points_possible"),
+            submission_types=data.get("submission_types") or [],
+            html_url=data.get("html_url") or "",
+        )
