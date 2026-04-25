@@ -1,7 +1,7 @@
 import typer
 
 from canpull.commands.announcements import announcement_save_all_cmd, announcements_cmd
-from canpull.commands.assignments import assignments_cmd
+from canpull.commands.assignments import assignment_save_all_cmd, assignments_cmd
 from canpull.commands.config import config_cmd
 from canpull.commands.courses import course_save_cmd, courses_cmd, nickname_course_cmd
 from canpull.commands.download import file_download_all_cmd, file_download_cmd
@@ -58,6 +58,7 @@ announcement_app.command("save-all")(announcement_save_all_cmd)
 assignment_app = typer.Typer(help="Browse course assignments.", no_args_is_help=True)
 main.add_typer(assignment_app, name="assignment")
 assignment_app.command("list")(assignments_cmd)
+assignment_app.command("save-all")(assignment_save_all_cmd)
 
 # ── top-level utilities ───────────────────────────────────────────────────────
 main.command("config")(config_cmd)

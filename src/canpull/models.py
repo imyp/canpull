@@ -143,6 +143,7 @@ class Assignment:
     points_possible: float | None
     submission_types: list[str]
     html_url: str
+    description: str
 
     @classmethod
     def from_api(cls, data: dict) -> "Assignment":
@@ -153,4 +154,5 @@ class Assignment:
             points_possible=data.get("points_possible"),
             submission_types=data.get("submission_types") or [],
             html_url=data.get("html_url") or "",
+            description=data.get("description") or "",
         )

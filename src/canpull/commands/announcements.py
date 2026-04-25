@@ -1,5 +1,3 @@
-import re
-
 from markdownify import markdownify
 from rich.console import Console
 
@@ -8,17 +6,9 @@ from canpull.commands.pages import _process_page_html, _strip_local_query_params
 from canpull.config import get_course_dir
 from canpull.models import Announcement
 from canpull.utils.display import announcements_table
+from canpull.utils.text import title_to_filename
 
 console = Console()
-
-
-def _title_to_filename(title: str) -> str:
-    """Convert an announcement title to a lowercase-dashes filename."""
-    slug = title.lower()
-    slug = re.sub(r"[^\w\s-]", "", slug)
-    slug = re.sub(r"[\s_]+", "-", slug)
-    slug = slug.strip("-")
-    return slug + ".md"
 
 
 def announcements_cmd(course: str):
@@ -71,7 +61,7 @@ def announcement_save_all_cmd(course: str):
         )
         modified_html = _strip_local_query_params(modified_html)
         md_content = f"# {announcement.title}\n\n{markdownify(modified_html)}"
-        filename = _title_to_filename(announcement.title)
+        filename = title_to_filename(announcement.title)
         md_path = dest_dir / filename
         md_path.write_text(md_content, encoding="utf-8")
         console.print(f"Saved: [bold]{md_path}[/bold]")
