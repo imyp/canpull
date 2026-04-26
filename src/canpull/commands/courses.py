@@ -12,15 +12,17 @@ def course_save_cmd(
     course: str,
     skip_existing: bool = typer.Option(False, "--skip-existing", help="Skip files that already exist locally."),
 ) -> None:
-    """Download everything for a course: modules, pages, announcements, and files.
+    """Download everything for a course: modules, pages, announcements, assignments, and files.
 
-    Runs all four save-all operations in sequence:
-      1. module save-all  — module index + linked pages as Markdown + module files
-      2. page save-all    — all remaining course pages as Markdown
+    Runs all five save-all operations in sequence:
+      1. module save-all       — module index + linked pages as Markdown + module files
+      2. page save-all         — all remaining course pages as Markdown
       3. announcement save-all — all announcements as Markdown
-      4. file download-all    — all files preserving folder structure
+      4. assignment save-all   — all assignments as Markdown
+      5. file download-all     — all files preserving folder structure
     """
     from canpull.commands.announcements import announcement_save_all_cmd
+    from canpull.commands.assignments import assignment_save_all_cmd
     from canpull.commands.download import file_download_all_cmd
     from canpull.commands.modules import module_save_all_cmd
     from canpull.commands.pages import page_save_all_cmd
@@ -33,6 +35,9 @@ def course_save_cmd(
 
     console.rule("[bold]Announcements")
     announcement_save_all_cmd(course)
+
+    console.rule("[bold]Assignments")
+    assignment_save_all_cmd(course, skip_existing=skip_existing)
 
     console.rule("[bold]Files")
     file_download_all_cmd(course, skip_existing=skip_existing)

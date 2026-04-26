@@ -8,6 +8,7 @@ from canpull.commands.pages import _process_page_html, _strip_local_query_params
 from canpull.config import get_course_dir
 from canpull.models import File, Module, ModuleItem, Page
 from canpull.utils.display import modules_tree
+from canpull.utils.text import title_to_filename
 
 console = Console()
 
@@ -106,6 +107,10 @@ def module_save_all_cmd(course: str, skip_existing: bool = False):
                     console.print(f"  Saved: [bold]{md_path}[/bold]")
                     saved_page_slugs.add(slug)
                 md_lines.append(f"- [{item.title}]({slug}.md)")
+
+            elif item.type == "Assignment" and item.content_id is not None:
+                filename = title_to_filename(item.title)
+                md_lines.append(f"- [{item.title}](assignments/{filename})")
 
             elif item.html_url:
                 md_lines.append(f"- [{item.title}]({item.html_url})")
