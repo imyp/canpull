@@ -21,7 +21,9 @@ def config_cmd() -> None:
     Values are saved to ~/.config/canpull/config.ini.
     Current values (if any) are shown as defaults.
     """
-    console.print(f"Configuring canpull — saved to [bold]{CONFIG_FILE}[/bold]\n")
+    token_url = f"{get_base_url()}/profile/settings"
+    console.print(f"Configuring canpull — saved to [bold]{CONFIG_FILE}[/bold]")
+    console.print(f"Generate a token at: [link={token_url}]{token_url}[/link] → Approved Integrations\n")
 
     token = typer.prompt(
         "Canvas API token",

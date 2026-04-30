@@ -14,6 +14,7 @@ from canpull.commands.pages import (
     save_homepage_cmd,
 )
 from canpull.commands.read import read_cmd
+from canpull.commands.whoami import whoami_cmd
 
 main = typer.Typer(
     help="canpull - access and download materials from Absalon (Canvas LMS).",
@@ -63,3 +64,4 @@ assignment_app.command("save-all")(assignment_save_all_cmd)
 # ── top-level utilities ───────────────────────────────────────────────────────
 main.command("config")(config_cmd)
 main.command("read")(read_cmd)
+main.command("whoami")(whoami_cmd)
