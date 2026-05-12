@@ -2,6 +2,7 @@
 name = "canpull"
 version = "0.1.0"
 description = "CLI tool for accessing Canvas LMS"
+license = { text = "MIT" }
 authors = [
     { name = "intimyp", email = "intimyp@gmail.com" }
 ]

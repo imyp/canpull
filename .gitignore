@@ -15,3 +15,5 @@ downloads/
 # Test artifacts
 .coverage
 .pytest_cache/
+
+.env*
