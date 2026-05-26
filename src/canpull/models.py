@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from urllib.parse import unquote_plus
 
+from canpull.utils.text import sanitize_filename
+
 
 @dataclass
 class Course:
@@ -34,7 +36,7 @@ class File:
         return cls(
             id=data["id"],
             display_name=data.get("display_name", data.get("filename", "")),
-            filename=unquote_plus(data.get("filename", "")),  
+            filename=sanitize_filename(unquote_plus(data.get("filename", ""))),
             url=data.get("url", ""),
             size=data.get("size", 0),
             folder_id=data.get("folder_id", 0),
