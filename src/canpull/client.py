@@ -25,6 +25,10 @@ class CanvasError(Exception):
     pass
 
 
+class UnauthorizedError(CanvasError):
+    pass
+
+
 class CanvasClient:
     def __init__(self) -> None:
         self._headers = {"Authorization": f"Bearer {get_token()}"}
@@ -99,7 +103,9 @@ class CanvasClient:
             message = str(error.reason)
         status = error.code
         if status == 401:
-            raise CanvasError("Unauthorized — check your API token.")
+            raise UnauthorizedError(
+                "Your Canvas API token is missing, invalid, or expired."
+            )
         if status == 403:
             raise CanvasError(
                 "Permission denied. This course may have the Files tab disabled. "

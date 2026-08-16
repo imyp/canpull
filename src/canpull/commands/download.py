@@ -2,7 +2,7 @@ from pathlib import Path
 
 from rich.console import Console
 
-from canpull.client import CanvasClient, CanvasError
+from canpull.client import CanvasClient, CanvasError, UnauthorizedError
 from canpull.config import get_course_dir
 from canpull.models import File, Folder
 
@@ -55,6 +55,8 @@ def _download_all(client: CanvasClient, course_id: int, skip_existing: bool = Fa
             continue
         try:
             client.download_file(file.url, dest_path, skip_existing=skip_existing)
+        except UnauthorizedError:
+            raise
         except CanvasError as e:
             console.print(f"[yellow]Skipping {file.display_name}: {e}[/yellow]")
 

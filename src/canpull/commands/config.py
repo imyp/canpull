@@ -5,6 +5,7 @@ from canpull.config import (
     CONFIG_FILE,
     get_base_url,
     get_downloads_dir,
+    get_token_url,
     save_config,
 )
 from canpull.config import (
@@ -21,13 +22,15 @@ def config_cmd() -> None:
     Values are saved to ~/.config/canpull/config.ini.
     Current values (if any) are shown as defaults.
     """
-    token_url = f"{get_base_url()}/profile/settings"
+    token_url = get_token_url()
     console.print(f"Configuring canpull — saved to [bold]{CONFIG_FILE}[/bold]")
-    console.print(f"Generate a token at: [link={token_url}]{token_url}[/link] → Approved Integrations\n")
+    console.print(f"Generate a token at: [link={token_url}]{token_url}[/link] -> Approved Integrations\n")
 
+    current_token = _get_token_from_config() if CONFIG_FILE.exists() else ""
     token = typer.prompt(
-        "Canvas API token",
-        default=_get_token_from_config() if CONFIG_FILE.exists() else "",
+        "Canvas API token" + (" [leave blank to keep current]" if current_token else ""),
+        default=current_token,
+        show_default=False,
         hide_input=True,
     )
     url = typer.prompt(

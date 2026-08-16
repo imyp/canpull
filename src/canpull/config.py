@@ -27,6 +27,10 @@ def get_base_url() -> str:
     return DEFAULT_BASE_URL
 
 
+def get_token_url() -> str:
+    return f"{get_base_url()}/profile/settings"
+
+
 def get_downloads_dir() -> Path:
     path = os.environ.get("CANPULL_DOWNLOADS_DIR")
     if path:

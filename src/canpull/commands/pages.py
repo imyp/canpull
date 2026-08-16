@@ -9,7 +9,7 @@ from markdownify import markdownify
 from rich.console import Console
 from rich.text import Text
 
-from canpull.client import CanvasClient, CanvasError
+from canpull.client import CanvasClient, CanvasError, UnauthorizedError
 from canpull.config import get_base_url, get_course_dir
 from canpull.models import File, Page
 from canpull.utils.display import pages_table
@@ -215,6 +215,8 @@ def _process_page_html(
                 console.print(f"Downloading [cyan]{file.display_name}[/cyan]")
                 client.download_file(file.url, files_dir / file.filename, skip_existing=skip_existing)
                 file_id_to_name[file_id] = file.filename
+            except UnauthorizedError:
+                raise
             except CanvasError as e:
                 console.print(f"[yellow]Skipping file {file_id}: {e}[/yellow]")
                 continue
