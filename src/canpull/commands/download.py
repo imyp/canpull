@@ -2,7 +2,12 @@ from pathlib import Path
 
 from rich.console import Console
 
-from canpull.client import CanvasClient, CanvasError, UnauthorizedError
+from canpull.client import (
+    CanvasClient,
+    CanvasError,
+    ForbiddenError,
+    UnauthorizedError,
+)
 from canpull.config import get_course_dir
 from canpull.models import File, Folder
 
@@ -39,10 +44,22 @@ def _download_all(client: CanvasClient, course_id: int, skip_existing: bool = Fa
     course_data = client.get_one(f"/courses/{course_id}")
     base_dir = get_course_dir(course_data)
 
-    folders_data = client.get(f"/courses/{course_id}/folders", params={"per_page": 100})
+    try:
+        folders_data = client.get(
+            f"/courses/{course_id}/folders", params={"per_page": 100}
+        )
+        files_data = client.get(
+            f"/courses/{course_id}/files", params={"per_page": 100}
+        )
+    except ForbiddenError:
+        console.print(
+            "[yellow]The Files tab is disabled for this course, skipping.[/yellow] "
+            "Files linked from modules, pages, and assignments are still "
+            "downloaded by those commands."
+        )
+        return
     folders = {f["id"]: Folder.from_api(f) for f in folders_data}
 
-    files_data = client.get(f"/courses/{course_id}/files", params={"per_page": 100})
     files = [File.from_api(f) for f in files_data]
 
     for file in files:

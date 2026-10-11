@@ -29,6 +29,10 @@ class UnauthorizedError(CanvasError):
     pass
 
 
+class ForbiddenError(CanvasError):
+    """Raised on HTTP 403, e.g. when a course tab (Files, Pages, ...) is disabled."""
+
+
 class CanvasClient:
     def __init__(self) -> None:
         self._headers = {"Authorization": f"Bearer {get_token()}"}
@@ -107,10 +111,9 @@ class CanvasClient:
                 "Your Canvas API token is missing, invalid, or expired."
             )
         if status == 403:
-            raise CanvasError(
-                "Permission denied. This course may have the Files tab disabled. "
-                "Try 'canpull modules <course_id>' to browse content "
-                "via modules instead."
+            raise ForbiddenError(
+                "Permission denied. You may not have access to this resource, "
+                "or it may be disabled for this course."
             )
         if status == 404:
             raise CanvasError(f"Not found: {error.url}")

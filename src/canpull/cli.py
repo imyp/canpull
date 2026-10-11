@@ -1,3 +1,5 @@
+import sys
+
 import typer
 from rich.console import Console
 
@@ -91,12 +93,12 @@ def main() -> None:
             _prompt_and_save_new_token()
         except (typer.Abort, EOFError):
             console.print("[red]Aborted.[/red] Token was not updated.")
-            raise typer.Exit(1)
+            sys.exit(1)
         try:
             app()
         except CanvasError as e:
             console.print(f"[red]Error:[/red] {e}")
-            raise typer.Exit(1)
+            sys.exit(1)
     except CanvasError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        sys.exit(1)
