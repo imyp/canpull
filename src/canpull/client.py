@@ -121,21 +121,35 @@ class CanvasClient:
         match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
         return match.group(1) if match else None
 
-    def resolve_course_id(self, nickname: str) -> int:
-        """Resolve a course nickname to a course ID."""
-        courses = self.get(
-            "/courses", params={"enrollment_state": "active", "per_page": 100}
+    def get_courses(self, enrollment_state: str) -> list[dict]:
+        """List courses with the given enrollment state ('active' or 'completed')."""
+        return self.get(
+            "/courses",
+            params={
+                "enrollment_state": enrollment_state,
+                "include[]": "term",
+                "per_page": 100,
+            },
         )
+
+    def resolve_course_id(self, nickname: str) -> int:
+        """Resolve a course nickname to a course ID.
+
+        Active courses are searched first; past (completed) courses are only
+        searched if no active course matches.
+        """
         ref_lower = nickname.lower()
-        matches = [c for c in courses if c.get("name", "").lower() == ref_lower]
-        if len(matches) == 1:
-            return matches[0]["id"]
-        if len(matches) > 1:
-            ids = ", ".join(str(c["id"]) for c in matches)
-            raise CanvasError(
-                f"Ambiguous nickname {nickname!r}: matches course IDs {ids}."
-            )
+        for state in ("active", "completed"):
+            courses = self.get_courses(state)
+            matches = [c for c in courses if c.get("name", "").lower() == ref_lower]
+            if len(matches) == 1:
+                return matches[0]["id"]
+            if len(matches) > 1:
+                ids = ", ".join(str(c["id"]) for c in matches)
+                raise CanvasError(
+                    f"Ambiguous nickname {nickname!r}: matches course IDs {ids}."
+                )
         raise CanvasError(
-            f"No active course found with nickname {nickname!r}. "
-            "Run 'canpull courses' to list available courses."
+            f"No course found with nickname {nickname!r}. "
+            "Run 'canpull course list --all' to list available courses."
         )

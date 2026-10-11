@@ -10,6 +10,7 @@ class Course:
     name: str
     course_code: str
     term: str
+    term_name: str = ""
 
     @classmethod
     def from_api(cls, data: dict) -> "Course":
@@ -18,6 +19,7 @@ class Course:
             name=data.get("name", ""),
             course_code=data.get("course_code", ""),
             term=data.get("enrollment_term_id", ""),
+            term_name=(data.get("term") or {}).get("name", ""),
         )
 
 

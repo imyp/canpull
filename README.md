@@ -30,6 +30,8 @@ CANPULL_DOWNLOADS_DIR=~/Downloads/canpull  # default
 | Command | Description |
 |---|---|
 | `canpull course list` | List enrolled courses |
+| `canpull course list --all` | List active and past courses |
+| `canpull course list --past` | List only past courses |
 | `canpull course nickname <course> <name>` | Set a short nickname for a course |
 | `canpull course save <course>` | Download all content for a course (modules, pages, announcements, files) |
 

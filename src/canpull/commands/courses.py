@@ -67,14 +67,36 @@ def nickname_course_cmd(
     )
 
 
-def courses_cmd():
-    """List all active enrolled courses."""
+def courses_cmd(
+    all_: bool = typer.Option(
+        False, "--all", "-a", help="Also show past (completed) courses."
+    ),
+    past: bool = typer.Option(
+        False, "--past", help="Show only past (completed) courses."
+    ),
+) -> None:
+    """List enrolled courses. Shows only active courses unless --all or --past."""
+    if all_ and past:
+        raise typer.BadParameter("--all and --past cannot be used together.")
+    if past:
+        states = ["completed"]
+    elif all_:
+        states = ["active", "completed"]
+    else:
+        states = ["active"]
+
     client = CanvasClient()
-    data = client.get(
-        "/courses", params={"enrollment_state": "active", "per_page": 100}
-    )
-    courses = [Course.from_api(c) for c in data]
+    courses: list[Course] = []
+    statuses: dict[int, str] = {}
+    for state in states:
+        for c in client.get_courses(state):
+            if c["id"] in statuses:
+                continue
+            courses.append(Course.from_api(c))
+            statuses[c["id"]] = "active" if state == "active" else "past"
+
     if not courses:
-        console.print("[yellow]No active courses found.[/yellow]")
+        label = "past " if past else "" if all_ else "active "
+        console.print(f"[yellow]No {label}courses found.[/yellow]")
         return
-    console.print(courses_table(courses))
+    console.print(courses_table(courses, statuses if len(states) > 1 else None))

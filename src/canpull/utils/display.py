@@ -9,13 +9,23 @@ from canpull.models import Announcement, Assignment, Course, File, Module, Modul
 console = Console()
 
 
-def courses_table(courses: list[Course]) -> Table:
+def courses_table(
+    courses: list[Course], statuses: dict[int, str] | None = None
+) -> Table:
     table = Table(title="Enrolled Courses", show_lines=True)
     table.add_column("ID", style="dim", no_wrap=True)
     table.add_column("Code", style="cyan", no_wrap=True)
     table.add_column("Name")
+    table.add_column("Term", style="dim", no_wrap=True)
+    if statuses is not None:
+        table.add_column("Status", no_wrap=True)
     for c in courses:
-        table.add_row(str(c.id), c.course_code, c.name)
+        row = [str(c.id), c.course_code, c.name, c.term_name]
+        if statuses is not None:
+            status = statuses.get(c.id, "")
+            style = "green" if status == "active" else "dim"
+            row.append(f"[{style}]{status}[/{style}]")
+        table.add_row(*row)
     return table
 
 

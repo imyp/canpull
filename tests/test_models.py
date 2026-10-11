@@ -82,6 +82,14 @@ class TestCourseFromApi:
         with pytest.raises(KeyError):
             Course.from_api({"name": "No ID"})
 
+    def test_term_name_from_included_term(self):
+        c = Course.from_api({"id": 4, "term": {"id": 5, "name": "Block 1 2025"}})
+        assert c.term_name == "Block 1 2025"
+
+    def test_term_name_defaults_to_empty_string(self):
+        assert Course.from_api({"id": 5}).term_name == ""
+        assert Course.from_api({"id": 6, "term": None}).term_name == ""
+
 
 # ---------------------------------------------------------------------------
 # File
